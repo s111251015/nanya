@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="overflow-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南亞科技互動學習網</title>
+    
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind 設定：自訂配色 -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        deepBlue: '#002B5B',   /* 深藍 */
+                        techBlue: '#00D2FF',   /* 科技藍 */
+                        silver: '#E5E7EB',     /* 銀灰 */
+                        white: '#FFFFFF',      /* 白色 */
+                        darkBg: '#0A192F',     /* 暗黑模式主背景 */
+                        darkCard: '#112240'    /* 暗黑模式卡片背景 */
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 全部字體改為仿宋體 */
+        body {
+            font-family: "FangSong", "STFangsong", "DFFangSong-W4", "BiauKai", serif !important;
+        }
+
+        /* 翻轉字卡 3D 效果 CSS */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .group:hover .flip-card-inner { transform: rotateY(180deg); }
+        
+        /* 強制隱藏所有瀏覽器預設卷軸，確保完全無滑動 */
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<!-- 指令修正：強制 h-screen 與 overflow-hidden 刪除頁面滑動 -->
+<body class="text-deepBlue dark:text-silver transition-colors duration-300 relative h-screen w-screen overflow-hidden m-0 p-0">
+
+    <!-- 高科技、未來感背景圖片 -->
+    <div class="fixed inset-0 z-[-2] bg-[url('https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center bg-no-repeat"></div>
+    
+    <!-- 確保文字不被擋住的半透明毛玻璃遮罩 -->
+    <div class="fixed inset-0 z-[-1] bg-white/85 dark:bg-darkBg/90 backdrop-blur-sm transition-colors duration-300"></div>
+
+    <!-- 手機版側邊欄開關 -->
+    <button onclick="toggleSidebar()" class="md:hidden fixed top-4 right-4 z-50 bg-deepBlue text-techBlue p-3 rounded-lg shadow-lg dark:border dark:border-techBlue">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <!-- 選單靠左 (Left Sidebar Navigation) -->
+    <nav id="sidebar" class="fixed left-0 top-0 h-screen w-64 bg-deepBlue text-white shadow-[0_0_20px_rgba(0,210,255,0.4)] border-r border-techBlue z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
+        <!-- 藍色發光線條 -->
+        <div class="absolute right-0 top-0 w-1 h-full bg-techBlue shadow-[0_0_15px_#00D2FF]"></div>
+        
+        <div class="p-6 border-b border-white/20 relative z-10 shrink-0">
+            <h1 class="text-2xl font-bold text-techBlue cursor-pointer" onclick="switchPage('home')">NANYA TP</h1>
+            <p class="text-xs text-silver mt-1" data-i18n="navSubtitle">互動式學習網</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto py-2 relative z-10">
+            <ul class="space-y-1 px-4">
+                <li><button onclick="switchPage('home')" class="w-full text-left py-2 px-4 rounded hover:bg-techBlue hover:text-deepBlue transition-colors font-bold" data-i18n="navHome">首頁</button></li>
+                <li><button onclick="switchPage('about')" class="w-full text-left py-2 px-4 rounded hover:bg-techBlue hover:text-deepBlue transition-colors font-bold" data-i18n="navAbout">企業介紹</button></li>
+                <li><button onclick="switchPage('market')" class="w-full text-left py-2 px-4 rounded hover:bg-techBlue hover:text-deepBlue transition-colors font-bold" data-i18n="navMarket">市場版圖</button></li>
+                <li><button onclick="switchPage('dynamics')" class="w-full text-left py-2 px-4 rounded hover:bg-techBlue hover:text-deepBlue transition-colors font-bold" data-i18n="navDynamics">近期動態</button></li>
+                <li><button onclick="switchPage('financial')" class="w-full text-left py-2 px-4 rounded hover:bg-techBlue hover:text-deepBlue transition-colors font-bold" data-i18n="navFinancial">財務概況</button></li>
+                <li><button onclick="switchPage('quiz')" class="w-full text-left py-2 px-4 rounded hover:bg-techBlue hover:text-deepBlue transition-colors font-bold" data-i18n="navQuiz">互動測驗</button></li>
+                <li><button onclick="switchPage('team')" class="w-full text-left py-2 px-4 rounded hover:bg-techBlue hover:text-deepBlue transition-colors font-bold" data-i18n="navTeam">團隊與協作</button></li>
+            </ul>
+        </div>
+
+        <!-- 功能按鈕區 -->
+        <div class="p-4 border-t border-white/20 flex justify-around relative z-10 shrink-0">
+            <button onclick="speakContent()" title="語音導覽" class="p-2 rounded-full hover:bg-white/20 transition text-techBlue">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button onclick="toggleLang()" title="切換語言" class="p-2 rounded-full hover:bg-white/20 transition text-techBlue flex items-center font-bold">
+                <i class="fas fa-language mr-1"></i> <span id="lang-indicator">EN</span>
+            </button>
+            <button onclick="toggleDark()" title="明暗模式" class="p-2 rounded-full hover:bg-white/20 transition text-techBlue">
+                <i id="theme-icon" class="fas fa-moon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主內容區：強制高等於螢幕，內部元素排列一致 -->
+    <main class="md:ml-64 h-screen flex flex-col overflow-hidden">
+        
+        <!-- 首頁 (Hero) -->
+        <!-- 統一加上 flex-col justify-center 以確保每一頁置中且大小統一 -->
+        <section id="home" class="page-section flex-1 flex flex-col justify-center items-center text-center p-4 relative overflow-hidden w-full">
+            
+            <!-- AI 科技感粒子動畫與電路板線條 -->
+            <div class="absolute inset-0 z-0 opacity-40 dark:opacity-60 pointer-events-none">
+                <div class="absolute top-[20%] left-[20%] w-2 h-2 bg-techBlue rounded-full shadow-[0_0_15px_#00D2FF] animate-[ping_3s_ease-in-out_infinite]"></div>
+                <div class="absolute top-[40%] right-[25%] w-3 h-3 bg-techBlue rounded-full shadow-[0_0_15px_#00D2FF] animate-[ping_4s_ease-in-out_infinite_0.5s]"></div>
+                <div class="absolute bottom-[30%] left-[30%] w-2 h-2 bg-techBlue rounded-full shadow-[0_0_15px_#00D2FF] animate-[ping_2s_ease-in-out_infinite_1s]"></div>
+                <div class="absolute bottom-[20%] right-[20%] w-4 h-4 bg-techBlue rounded-full shadow-[0_0_15px_#00D2FF] animate-[ping_5s_ease-in-out_infinite_0.2s]"></div>
+                <div class="absolute top-[20%] left-[20%] w-[40%] h-px bg-gradient-to-r from-techBlue/0 via-techBlue to-techBlue/0"></div>
+                <div class="absolute bottom-[30%] right-[20%] w-[30%] h-px bg-gradient-to-r from-techBlue/0 via-techBlue to-techBlue/0 transform -rotate-45"></div>
+            </div>
+
+            <!-- 裝飾圖 -->
+            <div class="absolute top-[10%] left-[10%] w-32 h-32 opacity-30 border-2 border-techBlue shadow-[0_0_20px_#00D2FF] rounded-full overflow-hidden animate-[spin_30s_linear_infinite] z-0 hidden md:block pointer-events-none">
+                <img src="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=400&q=80" alt="晶圓照片" class="w-full h-full object-cover mix-blend-overlay">
+            </div>
+            <div class="absolute bottom-[15%] right-[10%] w-24 h-24 opacity-30 border border-techBlue shadow-[0_0_15px_#00D2FF] rounded-lg overflow-hidden transform rotate-12 transition-transform duration-500 z-0 hidden md:block pointer-events-none">
+                <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=400&q=80" alt="DRAM 晶片" class="w-full h-full object-cover mix-blend-overlay">
+            </div>
+
+            <div class="relative z-10 max-w-4xl w-full mx-auto">
+                <h1 class="text-4xl md:text-6xl font-bold mb-3 text-deepBlue dark:text-techBlue drop-shadow-lg" data-i18n="heroTitle">南亞科技</h1>
+                <p class="text-lg md:text-xl mb-6 text-deepBlue dark:text-silver drop-shadow-md" data-i18n="heroSub">創新・責任・永續的 DRAM 領導品牌</p>
+                <button onclick="switchPage('about')" class="px-6 py-2 bg-techBlue text-deepBlue font-bold rounded-full shadow-[0_0_15px_rgba(0,210,255,0.6)] hover:bg-deepBlue hover:text-techBlue border-2 border-transparent hover:border-techBlue transition-all">
+                    <span data-i18n="heroBtn">開始探索</span> <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 企業介紹 (About) -->
+        <!-- 指令修正：整體縮小。降低 Padding、降低 mb、將卡片高度從 h-80 縮為 h-48/h-60 確保不溢出 -->
+        <section id="about" class="page-section hidden flex-1 w-full p-4 md:p-8 flex-col justify-center items-center overflow-hidden">
+            <div class="max-w-5xl w-full relative z-10 text-center mb-6">
+                <h2 class="text-2xl md:text-3xl font-bold mb-2 text-deepBlue dark:text-techBlue" data-i18n="aboutTitle">企業基本資料與核心理念</h2>
+                <p class="text-base md:text-lg mb-1" data-i18n="aboutDesc">全台最大、全球第四大 DRAM 製造商，專注於各式規格的 DRAM 記憶體晶片研發與製造。</p>
+                <p class="text-sm text-techBlue font-bold animate-pulse" data-i18n="aboutTip">👉 游標移至卡片上方翻轉查看詳細說明</p>
+            </div>
+
+            <div class="max-w-5xl w-full grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 perspective-1000 relative z-10">
+                <!-- Card 1 -->
+                <div class="group h-[160px] md:h-[220px] w-full perspective-1000">
+                    <div class="flip-card-inner relative w-full h-full transition-transform duration-700 transform-style-3d shadow-xl rounded-2xl">
+                        <div class="absolute w-full h-full backface-hidden bg-white dark:bg-darkCard backdrop-blur-sm border-2 border-silver dark:border-techBlue/50 rounded-2xl flex flex-col items-center justify-center p-4">
+                            <i class="fas fa-microchip text-4xl md:text-5xl text-techBlue mb-2 md:mb-4"></i>
+                            <h3 class="text-xl md:text-2xl font-bold text-deepBlue dark:text-techBlue" data-i18n="val1Title">創新</h3>
+                            <h4 class="text-sm md:text-base text-gray-500">Innovation</h4>
+                        </div>
+                        <div class="absolute w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-darkCard text-deepBlue dark:text-silver rounded-2xl flex flex-col items-center justify-center p-4 text-center border-2 border-techBlue shadow-[0_0_15px_rgba(0,210,255,0.3)]">
+                            <h3 class="text-xl font-bold mb-2 text-deepBlue dark:text-techBlue" data-i18n="val1Title">創新</h3>
+                            <p class="text-sm md:text-base" data-i18n="val1Desc">持續推進新世代產品（如 DDR5）研發，維持技術領先地位。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="group h-[160px] md:h-[220px] w-full perspective-1000">
+                    <div class="flip-card-inner relative w-full h-full transition-transform duration-700 transform-style-3d shadow-xl rounded-2xl">
+                        <div class="absolute w-full h-full backface-hidden bg-white dark:bg-darkCard backdrop-blur-sm border-2 border-silver dark:border-techBlue/50 rounded-2xl flex flex-col items-center justify-center p-4">
+                            <i class="fas fa-users text-4xl md:text-5xl text-techBlue mb-2 md:mb-4"></i>
+                            <h3 class="text-xl md:text-2xl font-bold text-deepBlue dark:text-techBlue" data-i18n="val2Title">責任</h3>
+                            <h4 class="text-sm md:text-base text-gray-500">Responsibility</h4>
+                        </div>
+                        <div class="absolute w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-darkCard text-deepBlue dark:text-silver rounded-2xl flex flex-col items-center justify-center p-4 text-center border-2 border-techBlue shadow-[0_0_15px_rgba(0,210,255,0.3)]">
+                            <h3 class="text-xl font-bold mb-2 text-deepBlue dark:text-techBlue" data-i18n="val2Title">責任</h3>
+                            <p class="text-sm md:text-base" data-i18n="val2Desc">落實利潤分享機制，積極回饋在地社會，照顧員工福祉。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="group h-[160px] md:h-[220px] w-full perspective-1000">
+                    <div class="flip-card-inner relative w-full h-full transition-transform duration-700 transform-style-3d shadow-xl rounded-2xl">
+                        <div class="absolute w-full h-full backface-hidden bg-white dark:bg-darkCard backdrop-blur-sm border-2 border-silver dark:border-techBlue/50 rounded-2xl flex flex-col items-center justify-center p-4">
+                            <i class="fas fa-leaf text-4xl md:text-5xl text-techBlue mb-2 md:mb-4"></i>
+                            <h3 class="text-xl md:text-2xl font-bold text-deepBlue dark:text-techBlue" data-i18n="val3Title">永續</h3>
+                            <h4 class="text-sm md:text-base text-gray-500">Sustainability</h4>
+                        </div>
+                        <div class="absolute w-full h-full backface-hidden rotate-y-180 bg-white dark:bg-darkCard text-deepBlue dark:text-silver rounded-2xl flex flex-col items-center justify-center p-4 text-center border-2 border-techBlue shadow-[0_0_15px_rgba(0,210,255,0.3)]">
+                            <h3 class="text-xl font-bold mb-2 text-deepBlue dark:text-techBlue" data-i18n="val3Title">永續</h3>
+                            <p class="text-sm md:text-base" data-i18n="val3Desc">推動綠色產品與節能減碳，實踐 ESG 企業永續發展目標。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 市場版圖 (Market) -->
+        <section id="market" class="page-section hidden flex-1 w-full p-4 md:p-8 bg-white/50 dark:bg-darkCard/50 backdrop-blur-md border-y border-silver/50 dark:border-deepBlue/50 flex-col justify-center items-center overflow-hidden">
+            <div class="max-w-5xl mx-auto w-full relative z-10">
+                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center text-deepBlue dark:text-techBlue" data-i18n="marketTitle">全球市場版圖與產業動能</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                    <div class="p-6 rounded-2xl bg-white/80 dark:bg-darkBg/80 backdrop-blur-md flex flex-col items-center text-center shadow-md border border-white/20">
+                        <i class="fas fa-globe text-4xl md:text-5xl text-techBlue mb-4"></i>
+                        <h3 class="text-2xl md:text-3xl font-bold text-deepBlue dark:text-white mb-2" data-i18n="marketRank">全球第四大</h3>
+                        <p class="text-sm md:text-base" data-i18n="marketRankDesc">緊追 Samsung、SK Hynix 與 Micron</p>
+                    </div>
+                    <div class="p-6 rounded-2xl bg-white/80 dark:bg-darkBg/80 backdrop-blur-md flex flex-col items-center text-center shadow-md border border-white/20">
+                        <i class="fas fa-chart-line text-4xl md:text-5xl text-techBlue mb-4"></i>
+                        <h3 class="text-xl md:text-2xl font-bold text-deepBlue dark:text-white mb-2" data-i18n="marketCycle">產業循環</h3>
+                        <p class="text-sm md:text-base" data-i18n="marketCycleDesc">挺過庫存修正期，受惠 AI 浪潮帶動高階記憶體需求，價格觸底回升。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 近期動態 (Dynamics) -->
+        <section id="dynamics" class="page-section hidden flex-1 w-full p-4 md:p-8 flex-col justify-center items-center overflow-hidden">
+            <div class="max-w-4xl mx-auto w-full relative z-10">
+                <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center text-deepBlue dark:text-techBlue" data-i18n="dynamicsTitle">近期重大動態</h2>
+                <div class="border-l-4 border-techBlue ml-4 md:ml-12 pl-6 md:pl-8 space-y-6 md:space-y-10">
+                    <div class="relative">
+                        <i class="fas fa-check-circle absolute -left-[37px] md:-left-[45px] text-2xl md:text-3xl text-techBlue bg-white dark:bg-darkBg rounded-full"></i>
+                        <h3 class="text-lg md:text-xl font-bold text-deepBlue dark:text-white mb-2" data-i18n="dyn1Title">產能規劃</h3>
+                        <p class="text-sm md:text-base" data-i18n="dyn1Desc">積極投入資本支出與新廠建置計畫，擴大新世代製程產能。</p>
+                    </div>
+                    <div class="relative">
+                        <i class="fas fa-check-circle absolute -left-[37px] md:-left-[45px] text-2xl md:text-3xl text-techBlue bg-white dark:bg-darkBg rounded-full"></i>
+                        <h3 class="text-lg md:text-xl font-bold text-deepBlue dark:text-white mb-2" data-i18n="dyn2Title">風險管理</h3>
+                        <p class="text-sm md:text-base" data-i18n="dyn2Desc">迅速應對台灣強震影響，產線設備復原狀況良好，展現營運韌性。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 財務概況 (Financials) -->
+        <section id="financial" class="page-section hidden flex-1 w-full p-4 md:p-8 bg-white/50 dark:bg-darkCard/50 backdrop-blur-md border-y border-silver/50 dark:border-deepBlue/50 flex-col justify-center items-center overflow-hidden">
+            <div class="max-w-4xl mx-auto w-full relative z-10">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-deepBlue dark:text-techBlue" data-i18n="finTitle">財務數據總覽預估 (2021-2026)</h2>
+                <div class="overflow-x-auto rounded-xl shadow-lg border border-silver dark:border-deepBlue">
+                    <table class="w-full text-left border-collapse backdrop-blur-md bg-white/80 dark:bg-darkBg/80 text-sm md:text-base">
+                        <thead>
+                            <tr class="bg-deepBlue text-white border-b-4 border-techBlue">
+                                <th class="p-2 md:p-3 font-bold" data-i18n="finYear">年度</th>
+                                <th class="p-2 md:p-3 font-bold" data-i18n="finRev">營收 (億新台幣)</th>
+                                <th class="p-2 md:p-3 font-bold">EPS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fin-table-body">
+                            <!-- JS 動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs md:text-sm mt-2 md:mt-4 text-right" data-i18n="finNote">* 註：2024-2026 為市場預估值，預期將挑戰歷史新高。</p>
+            </div>
+        </section>
+
+        <!-- 互動測驗 (Quiz) -->
+        <section id="quiz" class="page-section hidden flex-1 w-full p-4 md:p-8 text-center flex-col justify-center items-center overflow-hidden">
+            <div class="max-w-2xl mx-auto w-full relative z-10">
+                <h2 class="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-deepBlue dark:text-techBlue" data-i18n="quizTitle">互動測驗挑戰</h2>
+                
+                <div class="p-4 md:p-8 rounded-2xl shadow-xl min-h-[250px] md:min-h-[300px] flex flex-col justify-center bg-white/90 dark:bg-darkCard/90 backdrop-blur-sm border border-silver dark:border-deepBlue">
+                    
+                    <!-- 開始畫面 -->
+                    <div id="quiz-start">
+                        <i class="fas fa-gamepad text-5xl md:text-6xl text-techBlue mb-4"></i>
+                        <p class="mb-6 text-base md:text-lg font-bold" data-i18n="quizReady">準備好驗收您的學習成果了嗎？</p>
+                        <button onclick="startQuiz()" class="px-6 md:px-8 py-2 md:py-3 bg-techBlue text-deepBlue rounded-full font-bold hover:bg-deepBlue hover:text-techBlue transition" data-i18n="quizStartBtn">開始測驗</button>
+                    </div>
+
+                    <!-- 遊戲畫面 -->
+                    <div id="quiz-playing" class="hidden text-left">
+                        <p class="text-xs md:text-sm font-bold text-techBlue mb-2" id="quiz-progress">Question 1 / 3</p>
+                        <h3 class="text-base md:text-xl font-bold mb-4 text-deepBlue dark:text-white" id="quiz-question"></h3>
+                        <div id="quiz-options" class="space-y-2 mb-4">
+                            <!-- 選項按鈕由 JS 產生 -->
+                        </div>
+                        <div class="text-right hidden" id="quiz-next-container">
+                            <button onclick="nextQuestion()" class="px-4 py-1.5 md:px-6 md:py-2 bg-deepBlue text-white border border-techBlue rounded hover:bg-techBlue hover:text-deepBlue transition text-sm md:text-base" data-i18n="quizNextBtn">下一題</button>
+                        </div>
+                    </div>
+
+                    <!-- 結束畫面 -->
+                    <div id="quiz-finished" class="hidden text-center">
+                        <h3 class="text-2xl md:text-3xl font-bold mb-2 md:mb-4 text-deepBlue dark:text-white" data-i18n="quizScoreText">您的得分</h3>
+                        <p class="text-5xl md:text-6xl font-black text-techBlue mb-6 md:mb-8" id="quiz-score-display">0 / 3</p>
+                        <button onclick="resetQuiz()" class="px-6 py-2 bg-silver dark:bg-darkBg text-deepBlue dark:text-white rounded-full font-bold hover:bg-techBlue hover:text-deepBlue transition" data-i18n="quizRetryBtn">再玩一次</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 團隊與 AI 協作 (Team) -->
+        <section id="team" class="page-section hidden flex-1 w-full p-4 md:p-8 bg-white/50 dark:bg-darkCard/50 backdrop-blur-md border-t border-silver/50 dark:border-deepBlue/50 flex-col justify-center items-center overflow-hidden">
+            <div class="max-w-3xl mx-auto w-full relative z-10">
+                <h2 class="text-xl md:text-2xl font-bold mb-4 flex items-center justify-center text-deepBlue dark:text-techBlue">
+                    <i class="fas fa-users mr-2 text-techBlue"></i> <span data-i18n="teamTitle">團隊成員與 AI 協作說明</span>
+                </h2>
+                <div class="p-4 md:p-6 rounded-xl bg-white/80 dark:bg-darkBg/80 backdrop-blur-sm mb-4 shadow-sm border-l-4 border-deepBlue dark:border-techBlue">
+                    <h3 class="font-bold mb-1 md:mb-2 text-deepBlue dark:text-white text-sm md:text-base">Team Group 6 (GX)</h3>
+                    <p class="text-xs md:text-sm" data-i18n="teamIntro">本專案由第六組團隊共同製作，涵蓋資料蒐集、網頁開發與設計。</p>
+                </div>
+                <div class="p-4 md:p-6 rounded-xl border border-techBlue bg-[#E0F7FA]/80 dark:bg-[#002B5B]/80 backdrop-blur-sm">
+                    <h3 class="font-bold text-techBlue mb-1 md:mb-2 text-sm md:text-base">AI Usage Disclosure</h3>
+                    <p class="text-xs md:text-sm leading-relaxed" data-i18n="teamAi">協作歷程反思：本專案採用協同合作模式。在開發過程中，我們使用了 ChatGPT 與 Gemini 等 AI 工具輔助「網頁排版生成」與「文字內容潤飾」，並由全體組員進行最終的人工審核、修改與邏輯整合，確保符合學術誠信。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 頁尾 (Footer)：固定在最下方，高度縮小 -->
+        <footer class="py-2 md:py-3 mt-auto shrink-0 text-center bg-deepBlue text-silver relative z-10 w-full border-t border-techBlue/30">
+            <p class="font-bold mb-0.5 text-xs md:text-sm" data-i18n="footerCourse">1142 國際策略管理</p>
+            <p class="text-[10px] md:text-xs mb-1 text-techBlue" data-i18n="footerTeacher">授課教師: 梅筱珍 | 助教: 戴子然、王毓翰</p>
+            <p class="text-[10px] opacity-75">&copy; 2026 <span data-i18n="heroTitle">南亞科技</span>. 版權所有，僅供期末專案學術使用。</p>
+        </footer>
+    </main>
+
+    <!-- JavaScript 邏輯 -->
+    <script>
+        // --- 頁面跳轉邏輯 ---
+        function switchPage(pageId) {
+            // 由於採用統一大小並禁止滑動，我們透過精準的 class 控制顯示隱藏
+            const pages = document.querySelectorAll('.page-section');
+            pages.forEach(page => {
+                // 移除 flex 確保它完全消失，加上 hidden
+                page.classList.remove('flex');
+                page.classList.add('hidden');
+            });
+
+            // 目標頁面：移除 hidden，加上 flex 以啟用我們設定好的 flex 置中排版
+            const target = document.getElementById(pageId);
+            target.classList.remove('hidden');
+            target.classList.add('flex');
+
+            if(window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                if(!sidebar.classList.contains('-translate-x-full')) {
+                    toggleSidebar();
+                }
+            }
+        }
+
+        // --- 財務資料 ---
+        const financialData = [
+            { year: '2021', rev: 856, eps: 7.4 },
+            { year: '2022', rev: 569, eps: 4.3 },
+            { year: '2023', rev: 298, eps: -2.4 },
+            { year: '2024(E)', rev: 550, eps: 1.5 },
+            { year: '2025(E)', rev: 820, eps: 6.8 },
+            { year: '2026(E)', rev: 950, eps: 8.5 },
+        ];
+
+        function renderFinancials() {
+            const tbody = document.getElementById('fin-table-body');
+            tbody.innerHTML = '';
+            financialData.forEach(data => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-silver/50 dark:border-deepBlue/50 hover:bg-white/50 dark:hover:bg-darkCard/50 transition';
+                tr.innerHTML = `
+                    <td class="p-2 md:p-3 font-medium text-deepBlue dark:text-white">${data.year}</td>
+                    <td class="p-2 md:p-3">
+                        <div class="flex items-center">
+                            <span class="w-8 md:w-10">${data.rev}</span>
+                            <div class="ml-2 md:ml-4 h-2 md:h-3 bg-techBlue rounded-full" style="width: ${data.rev / 5}px"></div>
+                        </div>
+                    </td>
+                    <td class="p-2 md:p-3 font-bold ${data.eps < 0 ? 'text-red-500' : 'text-green-500'}">${data.eps}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        renderFinancials();
+
+        // --- 多國語言資料 ---
+        const translations = {
+            zh: {
+                navSubtitle: '互動式學習網', navHome: '首頁', navAbout: '企業介紹', navMarket: '市場版圖', navDynamics: '近期動態', navFinancial: '財務概況', navQuiz: '互動測驗', navTeam: '團隊與協作',
+                heroTitle: '南亞科技', heroSub: '創新・責任・永續的 DRAM 領導品牌', heroBtn: '開始探索',
+                aboutTitle: '企業基本資料與核心理念', aboutDesc: '全台最大、全球第四大 DRAM 製造商，專注於各式規格的 DRAM 記憶體晶片研發與製造。', aboutTip: '👉 游標移至卡片上方翻轉查看詳細說明',
+                val1Title: '創新', val1Desc: '持續推進新世代產品（如 DDR5）研發，維持技術領先地位。',
+                val2Title: '責任', val2Desc: '落實利潤分享機制，積極回饋在地社會，照顧員工福祉。',
+                val3Title: '永續', val3Desc: '推動綠色產品與節能減碳，實踐 ESG 企業永續發展目標。',
+                marketTitle: '全球市場版圖與產業動能', marketRank: '全球第四大', marketRankDesc: '緊追 Samsung、SK Hynix 與 Micron', marketCycle: '產業循環', marketCycleDesc: '挺過庫存修正期，受惠 AI 浪潮帶動高階記憶體需求，價格觸底回升。',
+                dynamicsTitle: '近期重大動態', dyn1Title: '產能規劃', dyn1Desc: '積極投入資本支出與新廠建置計畫，擴大新世代製程產能。', dyn2Title: '風險管理', dyn2Desc: '迅速應對台灣強震影響，產線設備復原狀況良好，展現營運韌性。',
+                finTitle: '財務數據總覽預估 (2021-2026)', finYear: '年度', finRev: '營收 (億新台幣)', finNote: '* 註：2024-2026 為市場預估值，預期將挑戰歷史新高。',
+                quizTitle: '互動測驗挑戰', quizReady: '準備好驗收您的學習成果了嗎？', quizStartBtn: '開始測驗', quizNextBtn: '下一題', quizScoreText: '您的得分', quizRetryBtn: '再玩一次',
+                teamTitle: '團隊成員與 AI 協作說明', teamIntro: '本專案由第六組團隊共同製作，涵蓋資料蒐集、網頁開發與設計。', teamAi: '協作歷程反思：本專案採用協同合作模式。在開發過程中，我們使用了 ChatGPT 與 Gemini 等 AI 工具輔助「網頁排版生成」與「文字內容潤飾」，並由全體組員進行最終的人工審核、修改與邏輯整合，確保符合學術誠信。',
+                footerCourse: '1142 國際策略管理', footerTeacher: '授課教師: 梅筱珍 | 助教: 戴子然、王毓翰',
+                q1: '南亞科技目前在全球 DRAM 製造商中排名第幾？', q1o1: '第一大', q1o2: '第三大', q1o3: '第四大', q1o4: '第五大',
+                q2: '南亞科技近期的「產業動能」主要受惠於哪一波浪潮？', q2o1: '元宇宙浪潮', q2o2: 'AI 浪潮 (帶動高階記憶體)', q2o3: '加密貨幣浪潮', q2o4: '5G 基礎建設',
+                q3: '下列何者不是南亞科技的三大企業核心理念？', q3o1: '創新', q3o2: '責任', q3o3: '永續', q3o4: '獨佔'
+            },
+            en: {
+                navSubtitle: 'Interactive Web', navHome: 'Home', navAbout: 'About', navMarket: 'Market', navDynamics: 'Dynamics', navFinancial: 'Financials', navQuiz: 'Quiz', navTeam: 'Team',
+                heroTitle: 'Nanya Technology', heroSub: 'Innovation, Responsibility, Sustainability in DRAM', heroBtn: 'Explore',
+                aboutTitle: 'Basic Info & Core Values', aboutDesc: 'Taiwan\'s largest and the world\'s 4th largest DRAM manufacturer.', aboutTip: '👉 Hover over cards to flip and read more',
+                val1Title: 'Innovation', val1Desc: 'Continuously advancing next-gen products (like DDR5) to maintain tech leadership.',
+                val2Title: 'Responsibility', val2Desc: 'Implementing profit-sharing, giving back to the community, and caring for employees.',
+                val3Title: 'Sustainability', val3Desc: 'Promoting green products to achieve ESG sustainable development goals.',
+                marketTitle: 'Global Market Map & Momentum', marketRank: 'Global Top 4', marketRankDesc: 'Following Samsung, SK Hynix, and Micron closely.', marketCycle: 'Industry Cycle', marketCycleDesc: 'Surviving inventory correction, benefiting from the AI wave driving high-end memory demand.',
+                dynamicsTitle: 'Recent Dynamics', dyn1Title: 'Capacity Planning', dyn1Desc: 'Investing in capital expenditure to expand next-gen capacity.', dyn2Title: 'Risk Management', dyn2Desc: 'Quick response to the Taiwan earthquake, showing strong operational resilience.',
+                finTitle: 'Financial Overview (2021-2026)', finYear: 'Year', finRev: 'Revenue (NT$ 100M)', finNote: '* Note: 2024-2026 are estimates.',
+                quizTitle: 'Interactive Quiz', quizReady: 'Ready to test your knowledge?', quizStartBtn: 'Start Quiz', quizNextBtn: 'Next', quizScoreText: 'Your Score', quizRetryBtn: 'Try Again',
+                teamTitle: 'Team Members & AI Collab', teamIntro: 'Project co-created by Group 6.', teamAi: 'Collaboration Reflection: Used AI tools for layout generation and text refinement. All members conducted final manual reviews to ensure academic integrity.',
+                footerCourse: '1142 Strategic Management', footerTeacher: 'Instructor: Hsiao-Chen Mei | TA: Tzu-Jan Tai, Yu-Han Wang',
+                q1: 'What is Nanya Technology\'s global ranking in DRAM?', q1o1: '1st', q1o2: '3rd', q1o3: '4th', q1o4: '5th',
+                q2: 'What wave is primarily driving Nanya\'s momentum?', q2o1: 'Metaverse', q2o2: 'AI Wave', q2o3: 'Crypto', q2o4: '5G',
+                q3: 'Which is NOT one of Nanya\'s core values?', q3o1: 'Innovation', q3o2: 'Responsibility', q3o3: 'Sustainability', q3o4: 'Monopoly'
+            }
+        };
+
+        let currentLang = 'zh';
+
+        function toggleLang() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            document.getElementById('lang-indicator').innerText = currentLang === 'zh' ? 'EN' : 'ZH';
+            
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerText = translations[currentLang][key];
+                }
+            });
+            if(quizState === 'playing') loadQuestion();
+        }
+
+        // --- 主題切換 (Dark Mode) ---
+        function toggleDark() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                icon.classList.add('text-yellow-400');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.remove('text-yellow-400');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            toggleDark();
+        }
+
+        // --- 側邊欄開關 (Mobile) ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // --- 語音導覽 ---
+        function speakContent() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const textToRead = translations[currentLang].heroSub + " " + translations[currentLang].aboutDesc;
+                const utterance = new SpeechSynthesisUtterance(textToRead);
+                
+                const voices = window.speechSynthesis.getVoices();
+                if (currentLang === 'en') {
+                    const ukVoice = voices.find(v => v.lang === 'en-GB' && v.name.includes('Male'));
+                    utterance.voice = ukVoice || voices.find(v => v.lang.startsWith('en'));
+                    utterance.lang = 'en-GB';
+                } else {
+                    const twVoice = voices.find(v => v.lang === 'zh-TW' && (v.name.includes('Yating') || v.name.includes('Han')));
+                    utterance.voice = twVoice || voices.find(v => v.lang === 'zh-TW');
+                    utterance.lang = 'zh-TW';
+                }
+                
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("瀏覽器不支援語音功能。");
+            }
+        }
+
+        // --- 測驗邏輯 ---
+        let currentQ = 0;
+        let score = 0;
+        let selectedAns = null;
+        let quizState = 'idle';
+
+        function getQuestions() {
+            const t = translations[currentLang];
+            return [
+                { q: t.q1, options: [t.q1o1, t.q1o2, t.q1o3, t.q1o4], ans: 2 },
+                { q: t.q2, options: [t.q2o1, t.q2o2, t.q2o3, t.q2o4], ans: 1 },
+                { q: t.q3, options: [t.q3o1, t.q3o2, t.q3o3, t.q3o4], ans: 3 }
+            ];
+        }
+
+        function startQuiz() {
+            quizState = 'playing';
+            document.getElementById('quiz-start').classList.add('hidden');
+            document.getElementById('quiz-playing').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const qs = getQuestions();
+            const q = qs[currentQ];
+            document.getElementById('quiz-progress').innerText = `Question ${currentQ + 1} / ${qs.length}`;
+            document.getElementById('quiz-question').innerText = q.q;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-3 md:p-4 rounded-xl border-2 border-silver dark:border-deepBlue hover:border-techBlue dark:hover:border-techBlue transition font-medium text-deepBlue dark:text-white bg-transparent text-sm md:text-base';
+                btn.innerHTML = `<span class="inline-block w-6 font-bold text-techBlue">${['A', 'B', 'C', 'D'][idx]}.</span> ${opt}`;
+                btn.onclick = () => selectOption(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+            document.getElementById('quiz-next-container').classList.add('hidden');
+            selectedAns = null;
+        }
+
+        function selectOption(idx, btnElement) {
+            if (selectedAns !== null) return;
+            selectedAns = idx;
+            const qs = getQuestions();
+            const correctAns = qs[currentQ].ans;
+            
+            const allBtns = document.getElementById('quiz-options').children;
+            for(let i=0; i<allBtns.length; i++) {
+                allBtns[i].classList.add('opacity-50', 'cursor-not-allowed');
+                if(i === correctAns) {
+                    allBtns[i].classList.remove('opacity-50', 'border-silver', 'dark:border-deepBlue');
+                    allBtns[i].classList.add('border-green-500', 'bg-green-50', 'dark:bg-green-900/30');
+                } else if (i === idx) {
+                    allBtns[i].classList.remove('border-silver', 'dark:border-deepBlue');
+                    allBtns[i].classList.add('border-red-500', 'bg-red-50', 'dark:bg-red-900/30');
+                }
+            }
+
+            if (idx === correctAns) score++;
+            document.getElementById('quiz-next-container').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            const qs = getQuestions();
+            if (currentQ < qs.length - 1) {
+                currentQ++;
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            quizState = 'finished';
+            document.getElementById('quiz-playing').classList.add('hidden');
+            document.getElementById('quiz-finished').classList.remove('hidden');
+            document.getElementById('quiz-score-display').innerText = `${score} / ${getQuestions().length}`;
+        }
+
+        function resetQuiz() {
+            quizState = 'idle';
+            currentQ = 0;
+            score = 0;
+            document.getElementById('quiz-finished').classList.add('hidden');
+            document.getElementById('quiz-start').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
